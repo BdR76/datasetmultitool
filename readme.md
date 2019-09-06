@@ -7,6 +7,7 @@ For example you can take a dataset and:
 
 * Convert it to different comma/semi-column or tab separated format
 * Update columns values between US, European and ISO date formats
+* Replace decimal points or comma's in numeric values
 * Remove thousand separators from number values
 * Rearrange the column order
 * Convert all data to SQL insert statements
@@ -20,10 +21,16 @@ How to use it
 4. Select output format and press CONVERT button
 5. Copy&paste dataset from blue output textbox into new file or spreadsheet
 
+Options
+-------
+Decimal separator
+Adjust decimal point or comma when converting numeric values. Select option (unchanged) to copy numeric values as-is.
+Select point as decimal separator for input will remove any thousand separator commas. And vice versa, if comma is decimal separator then any points thousand separators will be removed for numeric values.
+
 Data definition
 ---------------
 The input and output datadefinition are lists of column names, followed by the datatype of each column.
-There are three suppored datatypes.
+Suppored datatypes are
 
 	varchar    : any text value
 	numeric    : any numeric value 123 or -12,3 or 1.234 etc.
@@ -33,7 +40,7 @@ Each datatype is followed by parentheses, containing additional format informati
 The datatype varchar has the maximum width in parentheses.
 Numeric datatype format is either just te maximum width, or the width and how many decimals places.
 
-Datetime datatypes
+Datetime  datatypes
 
 must be followed by the date-mask in parentheses.
 Use any dateformat using dd=day, mm=month, yyyy=year, hh=hours, nn=minutes, ss=seconds, fff=milliseconds.
@@ -47,8 +54,8 @@ DataExamples
 	varchar(30)                : text value max. 30 characters
 	numeric(3)                 : numeric value with max. 3 digits, example 123 or 999
 	numeric(8)                 : numeric value with max. 8 digits, example 12467235
-	numeric(6,3)               : numeric value max. width 6 characters, and 3 decimal places, example 12.345
-	numeric(7,2)               : numeric values, example 1234.56 or -678.90 or 9999.99
+	numeric(6,3)               : numeric value max. width 6 characters, and 3 decimal places, example 12,345
+	numeric(7,2)               : numeric values, example 1234,56 or -678,90 or 9999,99
 	datetime(d-m-yyyy)         : datetime values 31-1-2018 or 5-12-2018 etc.
 	datetime(mm/dd/yyyy)       : datetime values 01/31/2018 or 12/05/2018 etc.
 	datetime(dd-mm-yyyy hh:nn) : datetime values 31-01-2018 12:34 or 05-12-2018 23:59 etc.
@@ -56,7 +63,14 @@ DataExamples
 
 Known bugs
 ----------
-* Automatically detecting date formats is sometimes incorrect
+Although fully functional, this tool is in prototype phase.
+It is missing some conveniences like open-file and save-file dialogs.
+Working with large dataset (>10000 records) can be slow.
+
+Known bugs and missing features:
+
+* When automatically detecting date formats, the date and month order is sometimes incorrect
+* Quoted string values are not supported
 * There is no output log for any data errors
 
 History
