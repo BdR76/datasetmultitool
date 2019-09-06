@@ -7,11 +7,11 @@ A tool to make it easier to work with and process tabular data files.
 Interpret, convert and reformat CSV datasets and various text formats.
 For example you can take a dataset and:
 
-* Convert it to different comma/semi-colon or tab separated format
-* Update date values to US, European and ISO date formats
+* Convert dataset to different comma/semi-colon or tab separated format
+* Update date or datetime values to US, European and ISO date formats
 * Replace decimal points or comma's in numeric values
 * Remove thousand separators from number values
-* Rearrange the column order
+* Rearrange column order
 * Convert all data to SQL insert statements
 
 How to use it
