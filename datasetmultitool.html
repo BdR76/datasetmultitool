@@ -32,10 +32,11 @@
 			switch(idx) {
 				case 1:
 					// input
-					data1 = "OrderID\tOrderDate\tArtNo\tAmount\tPrice\tPartName\tBrandName\n40361\t07/03/2019\t4006633374668\t2\t59.95\tBrake Pads Ceramic\tATE\n40361\t07/03/2019\t4006633146647\t2\t42.95\tBrake discs Powerdisc\tATE\n40361\t07/03/2019\t4016987119501\t1\t69.75\tBattery VW IV 12V 60Ah\tVarta\n40362\t07/05/2019\t4082300264630\t4\t4.99\tBattery terminal\tHELLA\n40362\t07/05/2019\t4026736081348\t1\t39.95\tOvervoltage Protector\tHERTH+BUSS ELPARTS\n40363\t07/08/2019\t4013872786831\t1\t230.00\tClutch kit 3000 990\tSACHS\n40363\t07/08/2019\t4006633294256\t1\t42.95\tClutch cable 1m\tATE\n40364\t07/11/2019\t4010858791506\t1\t86.95\tTiming belt set\tCONTINENTAL\n40364\t07/11/2019\t4029416288686\t10\t8.99\tOil filter 105mm/66mm\tHERTH+BUSS JAKOPARTS";
+					data1 = "OrderID\tOrderDate\tArtNo\tAmount\tPrice\tPartName\tBrandName\n40361\t07/03/2019\t4006633374668\t2\t59.95\tBrake Pads Ceramic\tATE\n40361\t07/03/2019\t4006633146647\t2\t42.95\tBrake discs Powerdisc\tATE\n40361\t07/03/2019\t4016987119501\t1\t69.75\tBattery VW IV 12V 60Ah\tVarta\n40362\t07/05/2019\t4082300264630\t4\t4.99\tBattery terminal\tHELLA\n40362\t07/05/2019\t4026736081348\t1\t39.95\tOvervoltage Protector\tHERTH+BUSS ELPARTS\n40363\t07/08/2019\t4013872786831\t1\t230.00\tClutch kit 3000 990\tSACHS\n40363\t07/08/2019\t4006633294256\t1\t42.95\tClutch cable 1m\tATE\n40364\t07/10/2019\t0191215072422\t1\t3,299.00\tEngine block Honda B-series\tDART\n40365\t07/11/2019\t4010858791506\t1\t86.95\tTiming belt set\tCONTINENTAL\n40365\t07/11/2019\t4029416288686\t10\t8.99\tOil filter 105mm/66mm\tHERTH+BUSS JAKOPARTS";
 					dd1 = "[OrderID] numeric(8)\n[OrderDate] datetime(mm/dd/yyyy)\n[ArtNo] varchar(15)\n[Amount] numeric(3)\n[Price] numeric(8,2)\n[PartName] varchar(30)\n[BrandName] varchar(30)\n";
 					frm1 = "tsv";
 					head = true;
+					decin = ".";
 
 					// output
 					dd2 = "[OrderID] numeric(8)\n[OrderDate] datetime(dd-mm-yyyy)\n[Amount] numeric(3)\n[Price] numeric(8,2)\n[ArtNo] varchar(15)\n[BrandName] varchar(30)\n[PartName] varchar(30)\n";
@@ -47,6 +48,7 @@
 					dd1 = "[Code] numeric(4)\n[PatientNaam] varchar(25)\n[MedicatieCode] varchar(8)\n[MedicatieNaam] varchar(25)\n[Dosis] numeric(6,1)\n[DossisEenheid] varchar(5)\n[StartDatum] datetime(d-m-yyyy)\n[StopDatum] datetime(d-m-yyyy)\n";
 					frm1 = "ssv";
 					head = true;
+					decin = ",";
 
 					// output
 					dd2 = "[Code] numeric(4)\n[PatientNaam] varchar(25)\n[MedicatieCode] varchar(8)\n[MedicatieNaam] varchar(25)\n[Dosis] numeric(6,2)\n[DossisEenheid] varchar(5)\n[StartDatum] datetime(yyyy-mm-dd)\n[StopDatum] datetime(yyyy-mm-dd)\n";
@@ -58,6 +60,7 @@
 					dd1 = "[MUTDAT] datetime(yyyymmddhhnnss)\n[ENTITEIT] varchar(1)\n[PRSPMONUM] varchar(7)\n[PRSGESVLT] varchar(6)\n[PRSGESVVG] varchar(10)\n[PRSGESNAM] varchar(25)\n[PRSSTTNAM] varchar(24)\n[PRSHUINUM] numeric(5)\n[PRSHUILET] varchar(1)\n[PRSPKDNUM] varchar(6)\n[PRSWPLNAM] varchar(24)\n[PRSGESAND] varchar(1)\n[PRSGEBDAT] datetime(yyyymmdd)\n[PRSANDNAM] varchar(1)\n";
 					frm1 = "fix";
 					head = false;
+					decin = ".";
 
 					// output
 					dd2 = "[MUTDAT] datetime(dd-mm-yyyy hh:nn:ss)\n[ENTITEIT] varchar(1)\n[PRSPMONUM] varchar(7)\n[PRSGESVLT] varchar(6)\n[PRSGESVVG] varchar(10)\n[PRSGESNAM] varchar(25)\n[PRSSTTNAM] varchar(24)\n[PRSHUINUM] numeric(5)\n[PRSHUILET] varchar(1)\n[PRSPKDNUM] varchar(6)\n[PRSWPLNAM] varchar(24)\n[PRSGESAND] varchar(1)\n[PRSGEBDAT] datetime(dd-mm-yyyy)\n[PRSANDNAM] varchar(1)\n";
@@ -70,6 +73,7 @@
 			document.getElementById("checkHeaderInput").checked = head;
 			document.getElementById("textInput").value = data1;
 			document.getElementById("datadefInput").value = dd1
+			document.getElementById("inputDecimal").value = decin;
 
 			// output
 			document.getElementById("outputFormat").value = frm2;
@@ -491,6 +495,8 @@
 											};
 											// Keep track of max length of numeric part (left of decimal separator)
 											maxlen = maxlen - dec - 1;
+											// set input decimal selection
+											document.getElementById("inputDecimal").value = (pnt > com ? "." : ",");
 										};
 									};
 									// keep max length
@@ -639,8 +645,11 @@
 			var formatout = document.getElementById("outputFormat").value;
 			var sepout = (formatout == "tsv" ? "\t" : (formatout == "ssv" ? ";" : ","));
 			var headOut = document.getElementById("checkHeaderOutput").checked;
+			var decin = document.getElementById("inputDecimal").value;
+			var thosep = (decin == "." ? "," : ".");
 
-			// output sql table
+			// force dot as decimal separator
+			var decout = document.getElementById("outputDecimal").value;
 			var sqlTable = document.getElementById("txtTableName").value;
 			sqlTable = (sqlTable.trim() == "" ? "TableName" : sqlTable);
 
@@ -715,9 +724,9 @@
 							if (t == "datetime") {
 								cols[c] = ConvertDateFormat(incols[idx], DDinput[idx][3], DDoutput[c][3][8]);
 							};
-							// force dot decimal separator
-							if ( (t == "numeric") && (idx < incols.length) ) {
-								cols[c] = incols[idx].replace(",", ".");
+							// force decimal separator
+							if ( (decout != "") && (t == "numeric") && (idx < incols.length) ) {
+								cols[c] = incols[idx].replace(thosep, "").replace(decin, decout);
 							};
 						};
 					};
@@ -853,7 +862,12 @@
 						<option value="fix">Fixed length</option>
 					</select>
 					
-					<input id="checkHeaderInput" type="checkbox" checked="true"> Column names in first row
+					<input id="checkHeaderInput" type="checkbox" checked="true"> Column names in first row,
+
+					decimal separator <select id="inputDecimal">
+						<option value="." selected="true">Point</option>
+						<option value=",">Comma</option>
+					</select>
 				</td>
 				<td><b>Data definition</b><br>Columns in input rows.</td>
 			</tr>
@@ -881,6 +895,11 @@
 
 					<input id="checkHeaderOutput" type="checkbox" checked="true"> Column names in first row,
 					SQL table <input type="text" id="txtTableName" size="12" value="TableName"> 
+					Decimal separator <select id="outputDecimal">
+						<option value="">(unchanged)</option>
+						<option value="." selected="true">Point</option>
+						<option value=",">Comma</option>
+					</select>
 
 				</td>
 				<td><b>Data definition</b><br>Columns in output rows.</td>
@@ -899,7 +918,10 @@
 		<b>Convert or reformat datasets:</b><br>
 		Paste your input dataset in the top green textarea, click "Smart detect" to automatically detect column definitions, then press "Convert".<br>
 		Copy and paste the bottom blue textarea into a new file or spreadsheet.<br>
-		You can change the output date formats, rearrange the output column order, remove output columns or add new empty output columns.<br>
+		You can change the output date formats, the decimal separator, rearrange the output column order, remove output columns or add new empty output columns.<br>
+		<b>Decimal separator</b><br>
+		Adjust decimal point or comma when converting numeric values. Select option (unchanged) to copy numeric values as-is.<br>
+		Select point as decimal separator for input will remove any thousand separator commas. And vice versa, if comma is decimal separator then any points thousand separators will be removed for numeric values.<br>
 		<b>Dateformats:</b><br>
 		Use any dateformat using (dd=day, mm=month, yyyy=year, hh=hours, nn=minutes, ss=seconds, fff=milliseconds).<br>
 		Allowed datetime separators are <b>- \ / . :</b> and <b>space</b>.<br>
