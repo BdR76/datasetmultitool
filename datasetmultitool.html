@@ -547,6 +547,54 @@
 			document.getElementById("datadefInput").value = strin;
 			document.getElementById("datadefOutput").value = strout;
 		}
+		
+		function addLineNumber()
+		{
+			if (confirm('Add line number column to input data?')) {
+				// get input lines and separator
+				var lines = document.getElementById("textInput").value.split("\n");
+				var formatin = document.getElementById("inputFormat").value;
+				var sepin = (formatin == "tsv" ? "\t" : (formatin == "csv" ? "," : (formatin == "ssv" ? ";" : ",")));
+
+				// check if column names in header
+				var headIn = document.getElementById("checkHeaderInput").checked;
+				var off = (headIn ? 0 : 1);
+
+				var strout = "";
+				// get input lines and separator
+				for (var i = 0; i < lines.length; i++) {
+					// get next line
+					var line = lines[i];
+					if ( (line.trim() != "") || (i != lines.length-1) ) {
+						switch (formatin) {
+							case "tsv":
+							case "csv":
+							case "ssv":
+								// header columns
+								if (headIn && (i == 0) ) {
+									strout = strout + "LineNumber" + sepin + line;	
+								} else {
+									strout = strout + (i+off) + sepin + line;
+								};
+
+								break;
+							case "fix":
+								strout = strout + StringPad(""+(i+off), 8) + line;
+								break;
+						};
+						strout = strout + "\n"
+					};
+				};
+				// new output
+				document.getElementById("textInput").value = strout;
+				// adjust datadefinition
+				var ddin = document.getElementById("datadefInput").value;
+				document.getElementById("datadefInput").value = "[LineNumber] numeric(8)\n" + ddin;
+				var ddout = document.getElementById("datadefOutput").value;
+				document.getElementById("datadefOutput").value = "[LineNumber] numeric(8)\n" + ddout;
+			};
+		}
+		
 
 		function interpretDataDefinition(str)
 		{
@@ -869,7 +917,7 @@
 						<option value=",">Comma</option>
 					</select>
 				</td>
-				<td><b>Data definition</b><br>Columns in input rows.</td>
+				<td><b>Data definition</b><br>Columns in input rows. <button onclick="addLineNumber(); return false;">Add line no.</button></td>
 			</tr>
 			<tr>
 				<td>
