@@ -25,13 +25,13 @@ How to use it
 
 Options
 -------
-# Input format
+**Input format**
 Tab separated, comma separated, semi-colon separated or fixed width.
 
-# Column names in first row
+**Column names in first row**
 First row contains column names, unselect this option when data starts at the first row.
 
-# Decimal separator
+**Decimal separator**
 Adjust decimal point or comma when converting numeric values.
 Select option (unchanged) to copy numeric values as-is.
 Select point as decimal separator for input will remove any thousand separator commas.
@@ -44,17 +44,17 @@ The input and output datadefinition are lists of column names, followed by the d
 Each datatype is followed by parentheses, containing additional format information.
 Suppored datatypes are
 
-	varchar    : any text value
+	varchar    : any text or string value
 	numeric    : any numeric value 123 or -12,3 or 1.234 etc.
 	datetime   : any datetime value 12/31/2018 or 31-12-2018 12:34 etc.
 
-# varchar
+**varchar**
 Datatype varchar has the maximum width in parentheses.
 
-# numeric
+**numeric**
 Numeric datatype format is either just te maximum width, or the width and how many decimals places.
 
-# datetime
+**datetime**
 Datetime datatypes must be followed by the date-mask in parentheses.
 Use any dateformat using dd=day, mm=month, yyyy=year, hh=hours, nn=minutes, ss=seconds, fff=milliseconds.
 Allowed datetime separators are - \ / . : and space.
@@ -78,7 +78,7 @@ Known bugs
 ----------
 Although fully functional, this tool is in prototype phase.
 It is missing some conveniences like open-file and save-file dialogs.
-Working with large dataset (>10000 records) can be slow.
+Working with large dataset (>10000 records) is quite slow.
 
 Known bugs and missing features:
 
@@ -90,7 +90,4 @@ History
 -------
 04-jul-2019 - first release v1.0  
 
-questions, comments, new songs: Bas de Reuver - bdr1976@gmail.com
-
-
-BdR©2019 Free to use - send questions or comments here
+BdR©2019 Free to use - send questions or comments: Bas de Reuver - bdr1976@gmail.com
