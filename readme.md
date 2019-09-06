@@ -7,8 +7,8 @@ A tool to make it easier to work with and process tabular data files.
 Interpret, convert and reformat CSV datasets and various text formats.
 For example you can take a dataset and:
 
-* Convert it to different comma/semi-column or tab separated format
-* Update column values between US, European and ISO date formats
+* Convert it to different comma/semi-colon or tab separated format
+* Update date values to US, European and ISO date formats
 * Replace decimal points or comma's in numeric values
 * Remove thousand separators from number values
 * Rearrange the column order
@@ -25,13 +25,13 @@ How to use it
 
 Options
 -------
-**Input format**
+**Input format**  
 Tab separated, comma separated, semi-colon separated or fixed width.
 
-**Column names in first row**
+**Column names in first row**   
 First row contains column names, unselect this option when data starts at the first row.
 
-**Decimal separator**
+**Decimal separator**   
 Adjust decimal point or comma when converting numeric values.
 Select option (unchanged) to copy numeric values as-is.
 Select point as decimal separator for input will remove any thousand separator commas.
@@ -48,13 +48,13 @@ Suppored datatypes are
 	numeric    : any numeric value 123 or -12,3 or 1.234 etc.
 	datetime   : any datetime value 12/31/2018 or 31-12-2018 12:34 etc.
 
-**varchar**
+**varchar**   
 Datatype varchar has the maximum width in parentheses.
 
-**numeric**
+**numeric**   
 Numeric datatype format is either just te maximum width, or the width and how many decimals places.
 
-**datetime**
+**datetime**   
 Datetime datatypes must be followed by the date-mask in parentheses.
 Use any dateformat using dd=day, mm=month, yyyy=year, hh=hours, nn=minutes, ss=seconds, fff=milliseconds.
 Allowed datetime separators are - \ / . : and space.
