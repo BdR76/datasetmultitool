@@ -434,7 +434,7 @@
 											if (datsep == "") {
 												if (val.length == 8) dat = "yyyymmdd";
 											} else {
-												if (datsep.length == 2) {
+												if ( (datsep.length == 2) && (datsep[0] == datsep[1]) ) {
 													datsep = datsep.substring(0, 1);
 													dat = 'yyyy'+datsep+'m'+datsep+'d'
 												};
@@ -447,7 +447,7 @@
 											if (datsep == "") {
 												if (val.length == 8) dat = "ddmmyyyy";
 											} else {
-												if (datsep.length == 2) {
+												if ( (datsep.length == 2) && (datsep[0] == datsep[1]) ) {
 													datsep = datsep.substring(0, 1);
 													dat = (datsep == "/" ? 'm/d/yyyy' : 'd'+datsep+'m'+datsep+'yyyy'); // exception for US date format
 												};
