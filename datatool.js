@@ -14,6 +14,11 @@ var SMART_DETECT_LINES = 1000;
 var DDinput;
 var DDoutput;
 
+// current year and century, example year=2018 then year=18, century=20
+var datenow = new Date();
+var CURRENT_YEAR_TWODIGIT = parseInt(datenow.getFullYear().toString().substr(-2));
+var CURRENT_CENT_TWODIGIT = parseInt(datenow.getFullYear().toString().substr(0, 2));
+
 function doExample(idx) {
 
 	switch(idx) {
@@ -69,25 +74,6 @@ function doExample(idx) {
 	document.getElementById("datadefOutput").value = dd2;
 }
 
-function FormatDate(dt, mask) {
-	var ret = mask;
-	
-	// date
-	ret = ret.replace("yyyy", dt.getFullYear());
-	ret = ret.replace(  "mm", ("0" + (dt.getMonth()+1)).slice(-2));
-	ret = ret.replace(   "m", (dt.getMonth()+1));
-	ret = ret.replace(  "dd", ("0" + dt.getDate()).slice(-2));
-	ret = ret.replace(   "d", dt.getDate());
-
-	// time
-	ret = ret.replace( "hh", ( "0" + dt.getHours()).slice(-2));
-	ret = ret.replace( "nn", ( "0" + dt.getMinutes()).slice(-2));
-	ret = ret.replace( "ss", ( "0" + dt.getSeconds()).slice(-2));
-	ret = ret.replace("fff", ("00" + dt.getMilliseconds()).slice(-2));
-
-	return ret;
-}
-
 function GetDatestringPosition(datemask)
 {
 	// determine if datemask is all fixed positions or separated values
@@ -101,28 +87,34 @@ function GetDatestringPosition(datemask)
 	};
 
 	// initialise
-	var ret = [-1, -1, -1, -1, -1, -1, -1, -1, datemask];
+	var ret = [-1, -1, -1, -1, -1, -1, -1, 0, 4, datemask]; // [7]=not-fixed positions, [8]=year length, [9]=datemask
 
 	if (fixed) {
 		// flag as "fixed positions"
 		ret[7] = 0;
 
 		// find string positions in mask
-		ret[0] = datemask.indexOf("yyyy"); // year
-		ret[1] = datemask.indexOf("mm");   // month
-		ret[2] = datemask.indexOf("dd");   // day
+		ret[0] = datemask.indexOf("yyyy"); // year, either yyyy or yy
+		if (ret[0] == -1) ret[0] = datemask.indexOf("yy");
+		ret[1] = datemask.indexOf("mm"); // month
+		ret[2] = datemask.indexOf("dd"); // day
 		
-		ret[3] = datemask.indexOf("hh");   // hours
-		ret[4] = datemask.indexOf("nn");   // minutes
-		ret[5] = datemask.indexOf("ss");   // seconds
-		ret[6] = datemask.indexOf("fff");  // milliseconds
+		ret[3] = datemask.indexOf("hh"); // hours
+		ret[4] = datemask.indexOf("nn"); // minutes
+		ret[5] = datemask.indexOf("ss"); // seconds
+		ret[6] = datemask.indexOf("fff");// milliseconds
+		
+		ret[8] = (datemask.indexOf("yyyy") < 0 ? 2 : 4);
 	} else {
 		// flag as "separated"
 		ret[7] = 1;
 
 		// find index of each value
 		for (var i = 0; i < tmp.length; i++) {
-			if (tmp[i].indexOf("y") >= 0) ret[0] = i; // year
+			if (tmp[i].indexOf("y") >= 0) {
+				ret[0] = i; // year
+				ret[8] = tmp[i].length;
+			};
 			if (tmp[i].indexOf("m") >= 0) ret[1] = i; // month
 			if (tmp[i].indexOf("d") >= 0) ret[2] = i; // day
 
@@ -154,10 +146,12 @@ function ConvertDateFormat(input, arypos, maskout)
 	var sec   = 0;
 	var msec  = 0;
 
+	var yearlen = arypos[8];
+
 	// fixed date format, values in string are always on exact same position
 	if (arypos[7] == 0) {
 		// arypos contains string-start-position for each value
-		if (arypos[0] >= 0) year  = input.substring(arypos[0], arypos[0]+4);
+		if (arypos[0] >= 0) year  = input.substring(arypos[0], arypos[0]+yearlen);
 		if (arypos[1] >= 0) month = input.substring(arypos[1], arypos[1]+2);
 		if (arypos[2] >= 0) day   = input.substring(arypos[2], arypos[2]+2);
 
@@ -180,6 +174,15 @@ function ConvertDateFormat(input, arypos, maskout)
 		if (arypos[6] >= 0 && arypos[6] < tmp.length) msec  = tmp[arypos[6]];
 	};
 	
+	// exception for 2-digit year format
+	if (yearlen == 2) {
+		var cent = CURRENT_CENT_TWODIGIT;
+		if (parseInt(year) > CURRENT_YEAR_TWODIGIT) {
+			cent = cent - 1;
+		};
+		year = "" + cent + year;
+	};
+	
 	// string to date may give errors
 	try {
 		// parse string as int, may trigger an error
@@ -196,6 +199,7 @@ function ConvertDateFormat(input, arypos, maskout)
 
 		// date
 		ret = ret.replace("yyyy", year);
+		ret = ret.replace(  "yy", dt.getFullYear().toString().substr(-2));
 		ret = ret.replace(  "mm", ("0" + (month+1)).slice(-2));
 		ret = ret.replace(   "m", (month+1));
 		ret = ret.replace(  "dd", ("0" + day).slice(-2));
@@ -755,7 +759,7 @@ function doConvert()
 					var t = DDinput[idx][1];
 					// re-format datetime values
 					if (t == "datetime") {
-						cols[c] = ConvertDateFormat(incols[idx], DDinput[idx][3], DDoutput[c][3][8]);
+						cols[c] = ConvertDateFormat(incols[idx], DDinput[idx][3], DDoutput[c][3][9]);
 					};
 					// force decimal separator
 					if ( (decout != "") && (t == "numeric") && (idx < incols.length) ) {
