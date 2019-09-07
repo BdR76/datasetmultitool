@@ -56,7 +56,9 @@ Numeric datatype format is either just te maximum width, or the width and how ma
 
 **datetime**   
 Datetime datatypes must be followed by the date-mask in parentheses.
-Use any dateformat using dd=day, mm=month, yyyy=year, hh=hours, nn=minutes, ss=seconds, fff=milliseconds.
+Use any dateformat using dd=day, mm=month, yyyy=year, yyyy=two-digit year, hh=hours, nn=minutes, ss=seconds, fff=milliseconds.
+When interpreting a date value with two-digit year format, the current year is used as the cut-off year
+i.e. if current year is 2018, then value "01/01/19" will be interpreted as "01-01-1919" (so not as "01-01-2019").
 Allowed datetime separators are - \ / . : and space.
 Use single letter d, m, h to indicate non-fixed positions so without leading zeroes.
 Valid datetime format examples: dd-mm-yyyy hh:nn:ss.fff , yyyy-mm-dd hh:nn , d-m-yyyy h:nn:ss etc.
@@ -78,7 +80,8 @@ Known bugs
 ----------
 Although fully functional, this tool is in prototype phase.
 It is missing some conveniences like open-file and save-file dialogs.
-Working with large dataset (>10000 records) is quite slow.
+Processing a large dataset (>10000 records) is workable but can be quite slow.
+Advice is to first test with about 1000 lines to set all the parameters and then process the entire dataset.
 
 Known bugs and missing features:
 
