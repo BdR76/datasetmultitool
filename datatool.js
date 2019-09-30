@@ -383,7 +383,7 @@ function detectDataTypes()
 				for (var c = 0; c < cols.length; c++) {
 				
 					// column properties
-					if (i == 0) {
+					if (c > arycol.length-1) {
 						// initialise
 						arycol[c] = [];
 
@@ -396,7 +396,8 @@ function detectDataTypes()
 					// update length
 					if ( (i > 0) || (header == false) ) {
 						// get value and length
-						var val = cols[c];
+						// note: sometimes empty values still contain just spaces or tabs
+						var val = cols[c].trim();
 						var maxlen = val.length;
 
 						// ignore empty values
@@ -684,6 +685,7 @@ function doConvert()
 	var headOut = document.getElementById("checkHeaderOutput").checked;
 	var decin = document.getElementById("inputDecimal").value;
 	var thosep = (decin == "." ? "," : ".");
+	var trimout = document.getElementById("checkTrimOutput").checked;
 
 	// force dot as decimal separator
 	var decout = document.getElementById("outputDecimal").value;
@@ -737,7 +739,7 @@ function doConvert()
 					var idx2 = 0;
 					for (var c = 0; c < DDinput.length; c++) {
 						idx2 = idx1 + DDinput[c][2];
-						var val = line.substring(idx1, idx2).trim();
+						var val = line.substring(idx1, idx2).trim(); // trim lines so no extra columns at end
 						incols[c] = val;
 						idx1 = idx2;
 					};
@@ -764,6 +766,10 @@ function doConvert()
 					// force decimal separator
 					if ( (decout != "") && (t == "numeric") && (idx < incols.length) ) {
 						cols[c] = incols[idx].replace(thosep, "").replace(decin, decout);
+					};
+					// optionally trim all values
+					if (trimout) {
+						cols[c] = cols[c].trim();
 					};
 				};
 			};
