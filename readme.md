@@ -56,7 +56,7 @@ Numeric datatype format is either just te maximum width, or the width and how ma
 
 **datetime**   
 Datetime datatypes must be followed by the date-mask in parentheses.
-Use any dateformat using dd=day, mm=month, yyyy=year, yyyy=two-digit year, hh=hours, nn=minutes, ss=seconds, fff=milliseconds.
+Use any dateformat using dd=day, mm=month, yyyy=year, yy=two-digit year, hh=hours, nn=minutes, ss=seconds, fff=milliseconds.
 When interpreting a date value with two-digit year format, the current year is used as the cut-off year
 i.e. if current year is 2018, then value "01/01/19" will be interpreted as "01-01-1919" (so not as "01-01-2019").
 Allowed datetime separators are - \ / . : and space.

@@ -456,7 +456,7 @@ function detectDataTypes()
 								// numeric values starting with "0" and not a decimal value, treat as varchar
 								// for example patient code "0123456" or site code "001"
 								if (maxlen > 1) {
-									if ( (val.substring(0, 1) == "0") && (val.indexOf(".") == 0) && (val.indexOf(",") == 0) ) {
+									if ( (val.substring(0, 1) == "0") && (val.indexOf(".") == -1) && (val.indexOf(",") == -1) ) {
 										arycol[c][1] = "varchar";
 									};
 								};
