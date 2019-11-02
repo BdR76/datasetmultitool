@@ -86,46 +86,90 @@ function GetDatestringPosition(datemask)
 		if (tmp[i] == "h") fixed = false;
 	};
 
-	// initialise
-	var ret = [-1, -1, -1, -1, -1, -1, -1, 0, 4, datemask]; // [7]=not-fixed positions, [8]=year length, [9]=datemask
+	// initialise result
+	var res = [-1, -1, -1, -1, -1, -1, -1, 0, 4, datemask]; // [7]=not-fixed positions, [8]=year length, [9]=datemask
 
 	if (fixed) {
 		// flag as "fixed positions"
-		ret[7] = 0;
+		res[7] = 0;
 
 		// find string positions in mask
-		ret[0] = datemask.indexOf("yyyy"); // year, either yyyy or yy
-		if (ret[0] == -1) ret[0] = datemask.indexOf("yy");
-		ret[1] = datemask.indexOf("mm"); // month
-		ret[2] = datemask.indexOf("dd"); // day
-		
-		ret[3] = datemask.indexOf("hh"); // hours
-		ret[4] = datemask.indexOf("nn"); // minutes
-		ret[5] = datemask.indexOf("ss"); // seconds
-		ret[6] = datemask.indexOf("fff");// milliseconds
-		
-		ret[8] = (datemask.indexOf("yyyy") < 0 ? 2 : 4);
+		res[0] = datemask.indexOf("yyyy"); // year, either yyyy or yy
+		if (res[0] == -1) res[0] = datemask.indexOf("yy");
+		res[1] = datemask.indexOf("mm"); // month
+		res[2] = datemask.indexOf("dd"); // day
+
+		res[3] = datemask.indexOf("hh"); // hours
+		res[4] = datemask.indexOf("nn"); // minutes
+		res[5] = datemask.indexOf("ss"); // seconds
+		res[6] = datemask.indexOf("fff");// milliseconds
+
+		res[8] = (datemask.indexOf("yyyy") < 0 ? 2 : 4);
 	} else {
 		// flag as "separated"
-		ret[7] = 1;
+		res[7] = 1;
 
 		// find index of each value
 		for (var i = 0; i < tmp.length; i++) {
 			if (tmp[i].indexOf("y") >= 0) {
-				ret[0] = i; // year
-				ret[8] = tmp[i].length;
+				res[0] = i; // year
+				res[8] = tmp[i].length;
 			};
-			if (tmp[i].indexOf("m") >= 0) ret[1] = i; // month
-			if (tmp[i].indexOf("d") >= 0) ret[2] = i; // day
+			if (tmp[i].indexOf("m") >= 0) res[1] = i; // month
+			if (tmp[i].indexOf("d") >= 0) res[2] = i; // day
 
-			if (tmp[i].indexOf("h") >= 0) ret[3] = i; // hours
-			if (tmp[i].indexOf("n") >= 0) ret[4] = i; // minutes
-			if (tmp[i].indexOf("s") >= 0) ret[5] = i; // seconds
-			if (tmp[i].indexOf("f") >= 0) ret[6] = i; // milliseconds
+			if (tmp[i].indexOf("h") >= 0) res[3] = i; // hours
+			if (tmp[i].indexOf("n") >= 0) res[4] = i; // minutes
+			if (tmp[i].indexOf("s") >= 0) res[5] = i; // seconds
+			if (tmp[i].indexOf("f") >= 0) res[6] = i; // milliseconds
 		};
 	};
+
+	return res;
+}
+
+function checkValidDateTime(year, month, day, hour, min, sec, msec)
+{
+	// invalid if any value is not-a-number
+	if (	isNaN(year)
+		|| isNaN(month)
+		|| isNaN(day)
+		|| isNaN(hour)
+		|| isNaN(min)
+		|| isNaN(sec)
+		|| isNaN(msec)
+	) {
+		return false;
+	};
+
+	// month has 31 days
+	var max = 31;
+
+	// except for april, june, september, november
+	if ([4,6,9,11].indexOf(month) >= 0) max = 30;
+
+	// february has 28 days
+	if (month == 2) {
+		// except 29 days when leap year
+		max = (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0) ? 29 : 28);
+	};
 	
-	return ret;
+	// invalid if any values are out of bounds
+	return !(	(day < 1)
+			|| (day > max)
+			|| (month < 1)
+			|| (month > 12)
+			|| (year < 0)	// arbitrary year limits
+			|| (year > 9999)
+			|| (hour < 0)
+			|| (hour > 23)
+			|| (min < 0)
+			|| (min > 59)
+			|| (sec < 0)
+			|| (sec > 59)
+			|| (msec < 0)
+			|| (msec > 999)
+			);
 }
 
 function ConvertDateFormat(input, arypos, maskout)
@@ -134,11 +178,12 @@ function ConvertDateFormat(input, arypos, maskout)
 	if ((!input) || input.trim() == "") {
 		return "";
 	};
-	var ret = maskout;
+	// initialise result
+	var res = maskout;
 
 	// initialise
 	var year  = 1900;
-	var month = 0;
+	var month = 1;
 	var day   = 1;
 
 	var hour  = 0;
@@ -167,13 +212,13 @@ function ConvertDateFormat(input, arypos, maskout)
 		if (arypos[0] >= 0 && arypos[0] < tmp.length) year  = tmp[arypos[0]];
 		if (arypos[1] >= 0 && arypos[1] < tmp.length) month = tmp[arypos[1]];
 		if (arypos[2] >= 0 && arypos[2] < tmp.length) day   = tmp[arypos[2]];
-		
+
 		if (arypos[3] >= 0 && arypos[3] < tmp.length) hour  = tmp[arypos[3]];
 		if (arypos[4] >= 0 && arypos[4] < tmp.length) min   = tmp[arypos[4]];
 		if (arypos[5] >= 0 && arypos[5] < tmp.length) sec   = tmp[arypos[5]];
 		if (arypos[6] >= 0 && arypos[6] < tmp.length) msec  = tmp[arypos[6]];
 	};
-	
+
 	// exception for 2-digit year format
 	if (yearlen == 2) {
 		var cent = CURRENT_CENT_TWODIGIT;
@@ -182,43 +227,49 @@ function ConvertDateFormat(input, arypos, maskout)
 		};
 		year = "" + cent + year;
 	};
+
+	// check if it is a valid date..
+	// the JavaScript Date constructor is garbage at detecting invalid dates, see:
+	// https://stackoverflow.com/questions/58660171/detecting-invalid-date-values-when-constructing-a-new-date-from-integers-in-java
+	//var dt = new Date(`${year}-${month}-${day} ${hour}:${min}:${sec}.${msec}`);
+	//valid = (dt instanceof Date && !isNaN(dt));
 	
-	// string to date may give errors
-	try {
-		// parse string as int, may trigger an error
-		year  = parseInt(year);
-		month = parseInt(month) - 1; // javascript months is zero based index (0=jan, 1=feb etc.)
-		day   = parseInt(day);
-		hour  = parseInt(hour);
-		min   = parseInt(min);
-		sec   = parseInt(sec);
-		msec  = parseInt(msec);
+	// ..so instead use a custom function
+	valid = checkValidDateTime(year, month, day, hour, min, sec, msec);
 
-		// parse date to trigger error on incorrect date, like 2019-02-29 or 2020-11-31 etc.
-		var dt = new Date(year, month, day, hour, min, sec, msec);
+	// construct new date string, in case of invalid date it can be garbage-in garbage-out
+	// but that is better than "null" or "" in output dataset
+	// date
+	res = res.replace("yyyy", year);
+	res = res.replace(  "yy", year.toString().substr(-2));
+	res = res.replace(  "mm", ("0" + month).slice(-2));
+	res = res.replace(   "m", month);
+	res = res.replace(  "dd", ("0" + day).slice(-2));
+	res = res.replace(   "d", day);
 
-		// date
-		ret = ret.replace("yyyy", year);
-		ret = ret.replace(  "yy", dt.getFullYear().toString().substr(-2));
-		ret = ret.replace(  "mm", ("0" + (month+1)).slice(-2));
-		ret = ret.replace(   "m", (month+1));
-		ret = ret.replace(  "dd", ("0" + day).slice(-2));
-		ret = ret.replace(   "d", day);
+	// time
+	res = res.replace( "hh", ("0" + hour).slice(-2));
+	res = res.replace(  "h", hour);
+	res = res.replace( "nn", ("0" + min).slice(-2));
+	res = res.replace(  "n", min);
+	res = res.replace( "ss", ("0" + sec).slice(-2));
+	res = res.replace(  "s", sec);
+	res = res.replace("fff", ("00" + msec).slice(-3));
 
-		// time
-		ret = ret.replace( "hh", ("0" + hour).slice(-2));
-		ret = ret.replace(  "h", hour);
-		ret = ret.replace( "nn", ("0" + min).slice(-2));
-		ret = ret.replace(  "n", min);
-		ret = ret.replace( "ss", ("0" + sec).slice(-2));
-		ret = ret.replace(  "s", sec);
-		ret = ret.replace("fff", ("00" + msec).slice(-3));
-	}
-	catch(err) {
-		ret = null;
-	};
+	// return new string and IsValidDate
+	return [res, valid];
+}
 
-	return ret;
+function WriteToLog(str)
+{
+	// write to error logging
+	document.getElementById("textLog").value += (str + "\n");
+}
+
+function ClearLog()
+{
+	// write to error logging
+	document.getElementById("textLog").value = "";
 }
 
 function DoGenerate()
@@ -251,6 +302,9 @@ function StringPad(s, p)
 
 function detectDataTypes()
 {
+	// clear logging
+	ClearLog();
+	
 	// determine metadata based on input textdata
 	var lines = document.getElementById("textInput").value.split("\n");
 	var arycol = [];
@@ -311,7 +365,7 @@ function detectDataTypes()
 					// line may vary in length
 					if (!fixcol[c]) fixcol[c] = 0;
 					newcol = 0;
-					
+
 					// examine single characers
 					var ch = line[c];
 
@@ -364,7 +418,7 @@ function detectDataTypes()
 			// add column
 			arycol[idx] = [];
 
-			arycol[idx][0] = ("Col" + idx);      // name
+			arycol[idx][0] = ("Col" + (idx+1));      // name
 			arycol[idx][1] = "varchar";          // datatype
 			arycol[idx][2] = (stop - start + 1); // length
 			arycol[idx][3] = 0;                  // decimals
@@ -379,15 +433,15 @@ function detectDataTypes()
 			// ignore empty lines
 			if (line != "") {
 				var cols = line.split(sep);
-				
+
 				for (var c = 0; c < cols.length; c++) {
-				
+
 					// column properties
 					if (c > arycol.length-1) {
 						// initialise
 						arycol[c] = [];
 
-						arycol[c][0] = (header ? cols[c] : "Col" + c); // name
+						arycol[c][0] = (header ? cols[c] : "Col" + (c+1)); // name
 						arycol[c][1] = "numeric";  // datatype
 						arycol[c][2] = 0;     // length
 						arycol[c][3] = 0;     // decimals
@@ -406,7 +460,7 @@ function detectDataTypes()
 							var test = val.replace(".", "").replace(",", "");
 							var num = (!isNaN(parseFloat(test)) && isFinite(test));
 							var dat = "";
-							
+
 							// check if date
 							// TODO: improve date detection, only checks on year now)
 							if ( (maxlen >= 8) && (maxlen <= 10) ) {
@@ -495,11 +549,10 @@ function detectDataTypes()
 							};
 						};
 					};
-
 				};
 			};
 		};
-		
+
 		// numeric with decimals: [2] is max length before decimal, [3] is max length after decimal.
 		// Change [2] so it's total length including decimals and [3] is just decimals
 		for (var c = 0; c < arycol.length; c++) {
@@ -524,7 +577,7 @@ function detectDataTypes()
 
 		strin  = strin  + (arycol[c][1] == "datetime" ? arycol[c][3] : arycol[c][2]); // length or datemask
 		strout = strout + (arycol[c][1] == "datetime" ? "yyyy-mm-dd" : arycol[c][2]); // force output datemask
-				
+
 		if ( (arycol[c][1] == "numeric") && (arycol[c][3] != 0) ) {
 			strin  = strin  + "," + arycol[c][3]; // decimals
 			strout = strout + "," + arycol[c][3]; // decimals
@@ -536,6 +589,16 @@ function detectDataTypes()
 	// output
 	document.getElementById("datadefInput").value = strin;
 	document.getElementById("datadefOutput").value = strout;
+	
+	// write to logging
+	var msg = "";
+	if (frm == "tsv") msg = "tab-separated";
+	if (frm == "csv") msg = "comma-separated";
+	if (frm == "ssv") msg = "semicolon-separated";
+	if (frm == "fix") msg = "fixed-width";
+	msg = "Detected " + msg + " data with " + arycol.length + " columns.";
+	WriteToLog(msg);
+	WriteToLog("Ready.");
 }
 
 function addLineNumber()
@@ -562,7 +625,7 @@ function addLineNumber()
 					case "ssv":
 						// header columns
 						if (headIn && (i == 0) ) {
-							strout = strout + "LineNumber" + sepin + line;	
+							strout = strout + "LineNumber" + sepin + line;
 						} else {
 							strout = strout + (i+off) + sepin + line;
 						};
@@ -594,7 +657,7 @@ function interpretDataDefinition(str)
 	var patMeta = /\[(.*?)\]\s.*(numeric|varchar|datetime)\((.*?)\)/;
 	var idx = 0;
 	var lines = str.replace(/\t/g, " ").split("\n");
-	
+
 	for (var i = 0; i < lines.length; i++) {
 		// get next line
 		var line = lines[i].trim();
@@ -609,7 +672,7 @@ function interpretDataDefinition(str)
 				ret[idx] = [];
 				// column properties
 				ret[idx][0] = res[1]; // name
-				
+
 				var dd = res[2].toLowerCase(); // datatype
 				var ln = res[3].toLowerCase(); // length
 				var dc = 0;
@@ -620,11 +683,18 @@ function interpretDataDefinition(str)
 					dc = ln.substring(pos + 1);
 					ln = ln.substring(0, pos);
 				};
-				
+
 				if (dd == "datetime") {
-					// length is length of mask, example "dd-mm-yyyy" 
+					// length is length of mask, example "dd-mm-yyyy"
 					dc = GetDatestringPosition(ln);
 					ln = ln.length;
+
+					// exception for separated (not-fixed length), extra length due to character "d-m-yyyy" (len=6) may be value "31-12-2018" (len=8)
+					if (dc[7] == 1) {
+						if (dc[1] >= 0) ln++; // allow extra character for month
+						if (dc[2] >= 0) ln++; // allow extra character for day
+						if (dc[3] >= 0) ln++; // allow extra character for hour
+					};
 				} else {
 					ln = parseInt(ln);
 					dc = parseInt(dc);
@@ -649,7 +719,7 @@ function RefreshDataDefinition()
 	// input
 	var ddin = document.getElementById("datadefInput").value;
 	DDinput = interpretDataDefinition(ddin);
-	
+
 	// output
 	var ddout = document.getElementById("datadefOutput").value;
 	DDoutput = interpretDataDefinition(ddout);
@@ -671,6 +741,11 @@ function RefreshDataDefinition()
 
 function doConvert()
 {
+	// clear logging
+	ClearLog();
+	var linecount = 0;
+	var errcount = 0;
+	
 	// refresh columns metadata
 	RefreshDataDefinition();
 
@@ -678,7 +753,7 @@ function doConvert()
 	var formatin = document.getElementById("inputFormat").value;
 	var sepin = (formatin == "tsv" ? "\t" : (formatin == "csv" ? "," : (formatin == "ssv" ? ";" : ",")));
 	var headIn = document.getElementById("checkHeaderInput").checked;
-	
+
 	// ouput parameters
 	var formatout = document.getElementById("outputFormat").value;
 	var sepout = (formatout == "tsv" ? "\t" : (formatout == "ssv" ? ";" : ","));
@@ -692,11 +767,11 @@ function doConvert()
 	var sqlTable = document.getElementById("txtTableName").value;
 	sqlTable = (sqlTable.trim() == "" ? "TableName" : sqlTable);
 
-	
+
 	// prepare input and output
 	var lines = document.getElementById("textInput").value.split("\n");
 	var strout = "";
-	
+
 	// header out
 	var idx1 = 0;
 	if (headOut && (["tsv", "csv", "ssv", "fix"].indexOf(formatout) >= 0)) {
@@ -725,6 +800,7 @@ function doConvert()
 		var line = lines[i].trim();
 		// ignore empty lines
 		if (line != "") {
+			linecount++;
 			// ---- interpret input values ----
 			var incols = [];
 
@@ -745,10 +821,11 @@ function doConvert()
 					};
 					break;
 			};
-			
-			// ---- convert values ----					
+
+			// ---- convert values ----
 			// output column order can be different
 			var cols = [];
+			var errline = "";
 			for (var c = 0; c < DDoutput.length; c++) {
 				// default empty
 				cols[c] = "";
@@ -756,22 +833,60 @@ function doConvert()
 				// from input columns
 				if ( (idx != -1) && (incols[idx]) ) {
 					// get value from input columns
-					cols[c] = incols[idx];
+					var val = incols[idx];
+					cols[c] = val;
+					// check width too long
+					if (val.length > DDinput[idx][2]) {
+						errline = errline + "value too long \"" + val + "\", ";
+					};
 					// get datatype
 					var t = DDinput[idx][1];
 					// re-format datetime values
 					if (t == "datetime") {
-						cols[c] = ConvertDateFormat(incols[idx], DDinput[idx][3], DDoutput[c][3][9]);
+						var dt = ConvertDateFormat(val, DDinput[idx][3], DDoutput[c][3][9]);
+						cols[c] = dt[0];
+						if (dt[1] == false) {
+							errline = errline + "invalid date " + val + ", ";
+						};
 					};
-					// force decimal separator
-					if ( (decout != "") && (t == "numeric") && (idx < incols.length) ) {
-						cols[c] = incols[idx].replace(thosep, "").replace(decin, decout);
+					// checks for numeric values
+					if (t == "numeric") {
+						// not a valid numeric value
+						if (isNaN(val.replace(thosep, "").replace(decin, "."))) {
+							errline = errline + "invalid numeric " + val + ", ";
+						} else if ((val.indexOf(thosep) > val.indexOf(decin))) {
+							// incorrect decimal separator
+							errline = errline + "incorrect decimal character " + val + ", ";
+						} else {
+							// check for too many decimals
+							var p = val.trim().lastIndexOf(decin);
+							if (p >= 0) {
+								p = val.trim().length - p - 1; // -1 for the decimal character
+								if (p > DDinput[idx][3]) {
+									errline = errline + "too many decimals " + cols[c] + ", ";
+								};
+							};
+						}
+						// force decimal separator
+						if (decout != "") {
+							// force decimal separator
+							cols[c] = val.replace(thosep, "").replace(decin, decout);
+						};
 					};
+
 					// optionally trim all values
 					if (trimout) {
 						cols[c] = cols[c].trim();
 					};
 				};
+			};
+
+			// logging for any data error on this line of input
+			if (errline != "") {
+				// remove last comma and space
+				errline = errline.slice(0, -2);
+				WriteToLog("** Error on line " + (i+1-first) + ": " + errline);
+				errcount++;
 			};
 
 			// ---- format output values ----
@@ -802,7 +917,7 @@ function doConvert()
 					var sqlins = "insert into " + sqlTable + "(";
 					for (var c = 0; c < cols.length; c++) {
 						// column name
-						var colname = (c < DDoutput.length ? DDoutput[c][0] : "Col"+c);
+						var colname = (c < DDoutput.length ? DDoutput[c][0] : "Col"+(c+1));
 						sqlins = sqlins + "[" + colname + "], ";
 					};
 					// remove last comma
@@ -831,7 +946,7 @@ function doConvert()
 				case "sqlsub":
 					// template for sub-select statement
 					var sqlsub = (i == first ? "select " : "union select ");
-		
+
 					// get values for data insert
 					var values = "";
 					for (var c = 0; c < cols.length; c++) {
@@ -874,8 +989,14 @@ function doConvert()
 		sqlsub = sqlsub.slice(0, -2) + "\n)\n";
 		strout = sqlsub + strout + "\ngo\n";
 	};
-					
-	
+
 	// output
 	document.getElementById("textOutput").value = strout;
+	
+	// write to logging
+	var msg = "";
+	msg = "Converted " + linecount + " data lines, " + (errcount > 0 ? "detected " + errcount + " lines with errors." : "no errors detected.");
+
+	WriteToLog(msg);
+	WriteToLog("Ready.");
 };
