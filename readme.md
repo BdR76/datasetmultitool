@@ -52,7 +52,7 @@ Suppored datatypes are
 Datatype varchar has the maximum width in parentheses.
 
 **numeric**   
-Numeric datatype format is either just te maximum width, or the width and how many decimals places.
+Datatype numeric has the maximum width in parentheses, or the width and how many decimals places separated by a comma.
 
 **datetime**   
 Datetime datatypes must be followed by the date-mask in parentheses.
@@ -63,7 +63,14 @@ Allowed datetime separators are - \ / . : and space.
 Use single letter d, m, h to indicate non-fixed positions so without leading zeroes.
 Valid datetime format examples: dd-mm-yyyy hh:nn:ss.fff , yyyy-mm-dd hh:nn , d-m-yyyy h:nn:ss etc.
 
-DataExamples
+Data definition example
+
+	[PatientID] numeric(7)
+	[BirthDate] datetime(dd-mm-yyyy)
+	[Surname] varchar(25)
+	[HbA1c] numeric(5,1)
+
+Datatype examples
 
 	varchar(7)                 : text value max. 7 characters, example AB12345
 	varchar(30)                : text value max. 30 characters
@@ -76,6 +83,18 @@ DataExamples
 	datetime(dd-mm-yyyy hh:nn) : datetime values 31-01-2018 12:34 or 05-12-2018 23:59 etc.
 	datetime(yyyymmdd)         : datetime values 20181231 or 20180131 etc.
 
+Error logging
+-------------
+When you press "Convert", certain errors in the input data will be logged.
+Note that input columns that are not in the output rows will not be checked.
+It will check the input data for the following errors:
+
+* Values that are too long, example value "abcde" when column is varchar(4)
+* Non-numeric values in numeric columns, example value "n/a" when column is numeric
+* Incorrect decimal separator, example value "12.34" when input decimal separator is set to comma
+* Too many decimals, example value "12.34" when column is numeric(5,1)
+* Incorrect date format, example value "12/31/2018" when date format is "dd/mm/yyyy"
+
 Known bugs
 ----------
 Although fully functional, this tool is in prototype phase.
@@ -87,10 +106,11 @@ Known bugs and missing features:
 
 * When automatically detecting date formats, the date and month order is sometimes incorrect
 * Quoted string values are not supported
-* There is no output log for any data errors
+* Error checking for value labels is not supported (for example column may only contain 1, 2 or 3)
 
 History
 -------
 04-jul-2019 - first release v1.0  
+02-nov-2019 - logging for data errors
 
 BdR©2019 Free to use - send questions or comments: Bas de Reuver - bdr1976@gmail.com
