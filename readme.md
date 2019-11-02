@@ -76,8 +76,8 @@ Datatype examples
 	varchar(30)                : text value max. 30 characters
 	numeric(3)                 : numeric value with max. 3 digits, example 123 or 999
 	numeric(8)                 : numeric value with max. 8 digits, example 12467235
-	numeric(6,3)               : numeric value max. width 6 characters, and 3 decimal places, example 12,345
-	numeric(7,2)               : numeric values, example 1234,56 or -678,90 or 9999,99
+	numeric(6,3)               : numeric value max. width 6 characters, and 3 decimal places, example 12.345
+	numeric(7,2)               : numeric values, example 1234.56 or -678,90 or 9999.99
 	datetime(d-m-yyyy)         : datetime values 31-1-2018 or 5-12-2018 etc.
 	datetime(mm/dd/yyyy)       : datetime values 01/31/2018 or 12/05/2018 etc.
 	datetime(dd-mm-yyyy hh:nn) : datetime values 31-01-2018 12:34 or 05-12-2018 23:59 etc.
@@ -85,7 +85,8 @@ Datatype examples
 
 Error logging
 -------------
-When you press "Convert", certain errors in the input data will be logged.
+When you press "Convert", the input data will be checked for certain errors,
+the line numbers of any errors will be logging in the white textbox.
 Note that input columns that are not in the output rows will not be checked.
 It will check the input data for the following errors:
 
