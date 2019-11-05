@@ -174,10 +174,11 @@ function checkValidDateTime(year, month, day, hour, min, sec, msec)
 
 function ConvertDateFormat(input, arypos, maskout)
 {
-	// exception
+	// exception, empty values are allowed
 	if ((!input) || input.trim() == "") {
-		return "";
+		return ["", true];
 	};
+
 	// initialise result
 	var res = maskout;
 
