@@ -649,6 +649,94 @@ function addLineNumber()
 	};
 }
 
+function doSchemaIni()
+{
+	var str = "";
+	var dateformat = "";
+	var decimalplace = -1;
+	var namequote = false;
+	
+	// determine global format and settings
+	for (var i = 0; i < DDinput.length; i++) {
+		var nam = DDinput[i][0];
+		var typ = DDinput[i][1];
+		var wid = DDinput[i][2];
+		var msk = DDinput[i][3];
+		
+		// if any name contains spaces, put all column names in quotes
+		namequote = (namequote || nam.indexOf(" ") > 0);
+
+		// date format
+		if ((typ == "datetime") && (dateformat == "") ) {
+			dateformat = msk[9];
+		};
+
+		// decimal places
+		if (typ == "numeric") {
+			// keep maximum decimals
+			if (decimalplace < msk) {
+				decimalplace = msk;
+			};
+		};
+	};
+
+	// filename
+	str += "[" + document.getElementById("txtTableName").value + "]\n";
+
+	// delimiter
+	var formatin = document.getElementById("inputFormat").value;
+	if (formatin == "tsv") str += "Format=TabDelimited\n";
+	if (formatin == "ssv") str += "Format=Delimited(;)\n";
+	if (formatin == "csv") str += "Format=CSVDelimited\n";
+	if (formatin == "fix") str += "Format=FixedLength\n";
+
+	// header
+	if (document.getElementById("checkHeaderInput").checked) {
+		str += "ColNameHeader=True\n";
+	}
+
+	// dateformat, optional
+	if (dateformat != "") {
+		str += "DateTimeFormat=" + dateformat + "\n";
+	}
+
+	// decimal, optional
+	if (decimalplace > 0) {
+		str += "NumberDigits=" + decimalplace + "\n";
+		str += "DecimalSymbol=" + document.getElementById("inputDecimal").value + "\n";
+	}
+	
+	// output all columns
+	for (var i = 0; i < DDinput.length; i++) {
+		var nam = DDinput[i][0];
+		var typ = DDinput[i][1];
+		var wid = DDinput[i][2];
+		var msk = DDinput[i][3];
+		var com = "";
+
+		// if any name contains spaces, put all column names in quotes
+		if (namequote) {
+			nam = '"' + nam + '"';
+		};
+		
+		// schema can only have one dateformat, change any other datetimes to Text with comment
+		if ((typ == "datetime") && (msk[9] != dateformat) ) {
+			com = " ; DateTimeFormat=" + msk[9];
+			typ = "varchar";
+			wid = msk.length;
+		};
+		
+		// schema.ini data types
+		if (typ == "varchar") typ = "Text";
+		if (typ == "numeric") typ = (msk > 0 ? "Float" : "Integer");
+		if (typ == "datetime") typ = "DateTime";
+
+		// format column line
+		str += "Col" + (i+1) + "=" + nam + " " + typ + " Width " + wid + com + "\n";
+	};
+
+	document.getElementById("textOutput").value = str;
+}
 
 function interpretDataDefinition(str)
 {
@@ -768,7 +856,6 @@ function doConvert()
 	var sqlTable = document.getElementById("txtTableName").value;
 	sqlTable = (sqlTable.trim() == "" ? "TableName" : sqlTable);
 
-
 	// prepare input and output
 	var lines = document.getElementById("textInput").value.split("\n");
 	var strout = "";
@@ -791,6 +878,12 @@ function doConvert()
 		};
 		strout = strout + "\n";
 	};
+
+	// exception for schema.ini
+	if (formatout == "schema") {
+		doSchemaIni();
+		return;
+	}
 
 	// input header line contains column names, then skip first line
 	var first = (headIn ? 1 : 0);
