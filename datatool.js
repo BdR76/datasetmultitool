@@ -178,7 +178,6 @@ function ConvertDateFormat(input, arypos, maskout)
 	if ((!input) || input.trim() == "") {
 		return ["", true];
 	};
-
 	// initialise result
 	var res = maskout;
 
@@ -738,6 +737,80 @@ function doSchemaIni()
 	document.getElementById("textOutput").value = str;
 }
 
+function getTableNameSQL()
+{
+	var ret = document.getElementById("txtTableName").value;
+
+	if (ret.trim() == "") ret = "TableName";
+
+	if (ret.indexOf(" ") > 0) ret = '[' + ret + ']';
+
+	return ret;
+}
+
+function getCreateTableSQL()
+{
+	var ret = "";
+	var brackets = false;
+	
+	// determine global format and settings
+	for (var i = 0; i < DDinput.length; i++) {
+		var nam = DDinput[i][0];
+		var typ = DDinput[i][1];
+		var wid = DDinput[i][2];
+		var msk = DDinput[i][3];
+		
+		// if any name contains spaces, put all column names in quotes
+		brackets = (brackets || nam.indexOf(" ") > 0);
+	};
+
+	// tablename
+	ret += "CREATE TABLE " + getTableNameSQL() + " (\n";
+
+	// create all columns
+	for (var i = 0; i < DDinput.length; i++) {
+		var nam = DDinput[i][0];
+		var typ = DDinput[i][1];
+		var wid = DDinput[i][2];
+		var msk = DDinput[i][3];
+		var fld = "";
+
+		// if any name contains spaces, put all column names in brackets
+		if (brackets) {
+			nam = '[' + nam + ']';
+		};
+		
+		// SQL data types
+		if (typ == "numeric") {
+			if (msk == 0) {
+				typ = (wid > 2 ? "Integer" : "TinyInt");
+				wid = "";
+			} else {
+				wid = wid + "," + msk;
+			};
+		};
+
+		// datetime or just date
+		if (typ == "datetime") {
+
+			if (msk[9].indexOf("hh") < 0) typ = "date";
+			wid = "";
+		};
+
+		// width is optional, depends on data type
+		if (wid != "") wid = "(" + wid + ")";
+
+		// format column line
+		ret += "\t" + nam + " " + typ + wid + ",\n";
+	};
+
+	// remove last comma and return
+	ret = ret.slice(0, -2);
+	ret += "\n)\ngo\n";
+
+	return ret;
+}
+
 function interpretDataDefinition(str)
 {
 	var ret = [];
@@ -854,7 +927,7 @@ function doConvert()
 	// force dot as decimal separator
 	var decout = document.getElementById("outputDecimal").value;
 	var sqlTable = document.getElementById("txtTableName").value;
-	sqlTable = (sqlTable.trim() == "" ? "TableName" : sqlTable);
+	sqlTable = getTableNameSQL();
 
 	// prepare input and output
 	var lines = document.getElementById("textInput").value.split("\n");
@@ -878,6 +951,12 @@ function doConvert()
 		};
 		strout = strout + "\n";
 	};
+
+	// create table statement
+	if (formatout == "sqlins") strout = getCreateTableSQL();
+
+	// SQL statements always require dot for numeric values, not comma
+	if ((formatout == "sqlins") || (formatout == "sqlsub")) decout = ".";
 
 	// exception for schema.ini
 	if (formatout == "schema") {
@@ -1072,8 +1151,10 @@ function doConvert()
 
 	// template for sub-select statement
 	if (formatout == "sqlsub") {
+		// create table statement
+		var sqlsub = getCreateTableSQL();
 		// add insert part
-		var sqlsub = "insert into " + sqlTable + "(\n";
+		sqlsub += "insert into " + sqlTable + "(\n";
 		for (var c = 0; c < cols.length; c++) {
 			// column names
 			var colname = DDoutput[c][0];
