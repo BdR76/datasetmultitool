@@ -7,12 +7,16 @@ A tool to make it easier to work with and process tabular data files.
 Interpret, convert and reformat CSV datasets and various text formats.
 For example you can take a dataset and:
 
+* Automatically detect columns datatypes
 * Convert dataset to different comma/semi-colon or tab separated format
 * Update date or datetime values to US, European and ISO date formats
 * Replace decimal points or comma's in numeric values
 * Remove thousand separators from number values
 * Rearrange column order
 * Convert all data to SQL insert statements
+* Generate CREATE TABLE statement and schema.ini
+
+(Also see my related project [CSVLint plug-in for Notepad++](https://github.com/BdR76/CSVLint))
 
 How to use it
 -------------
