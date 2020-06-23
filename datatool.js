@@ -976,12 +976,20 @@ function doConvert()
 			linecount++;
 			// ---- interpret input values ----
 			var incols = [];
+			// ---- convert values ----
+			// output column order can be different
+			var cols = [];
+			var errline = "";
 
 			switch (formatin) {
 				case "tsv":
 				case "csv":
 				case "ssv":
 					incols = line.split(sepin);
+					// too many or too few columns
+					if (DDinput.length != incols.length) {
+						errline = errline + "too " + (DDinput.length > incols.length ? "few" : "many") + " columns, ";
+					};
 					break;
 				case "fix":
 					var idx1 = 0;
@@ -992,13 +1000,13 @@ function doConvert()
 						incols[c] = val;
 						idx1 = idx2;
 					};
+					// too many or too few characters
+					if (line.length != idx1) {
+						errline = errline + "too " + (idx1 > line.length ? "few" : "many") + " characters, ";
+					};
 					break;
 			};
 
-			// ---- convert values ----
-			// output column order can be different
-			var cols = [];
-			var errline = "";
 			for (var c = 0; c < DDoutput.length; c++) {
 				// default empty
 				cols[c] = "";
@@ -1058,7 +1066,7 @@ function doConvert()
 			if (errline != "") {
 				// remove last comma and space
 				errline = errline.slice(0, -2);
-				WriteToLog("** Error on line " + (i+1-first) + ": " + errline);
+				WriteToLog("** Error on line " + (i+1) + ": " + errline);
 				errcount++;
 			};
 
