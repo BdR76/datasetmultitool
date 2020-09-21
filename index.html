@@ -62,13 +62,14 @@
 					</select>
 
 					<input id="checkHeaderOutput" type="checkbox" checked="true"> Column names in first row,
-					SQL table <input type="text" id="txtTableName" size="12" value="TableName"> 
 					Decimal separator <select id="outputDecimal">
 						<option value="">(unchanged)</option>
 						<option value="." selected="true">Point</option>
 						<option value=",">Comma</option>
-					</select><br/>
-					<input id="checkTrimOutput" type="checkbox"> Trim all values
+					</select>
+					<input id="checkTrimOutput" type="checkbox" checked="true"> Trim all values <br/>
+					SQL table <input type="text" id="txtTableName" size="12" value="tmp_import_data">
+					SQL max rows <input type="text" id="intMaxRows" size="6" value="1000">
 				</td>
 				<td><b>Data definition</b><br>Columns in output rows.</td>
 			</tr>

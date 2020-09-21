@@ -24,7 +24,7 @@ function doExample(idx) {
 	switch(idx) {
 		case 1:
 			// input
-			data1 = "OrderID\tOrderDate\tArtNo\tAmount\tPrice\tPartName\tBrandName\n40361\t07/03/2019\t4006633374668\t2\t59.95\tBrake Pads Ceramic\tATE\n40361\t07/03/2019\t4006633146647\t2\t42.95\tBrake discs Powerdisc\tATE\n40361\t07/03/2019\t4016987119501\t1\t69.75\tBattery VW IV 12V 60Ah\tVarta\n40362\t07/05/2019\t4082300264630\t4\t4.99\tBattery terminal\tHELLA\n40362\t07/05/2019\t4026736081348\t1\t39.95\tOvervoltage Protector\tHERTH+BUSS ELPARTS\n40363\t07/08/2019\t4013872786831\t1\t230.00\tClutch kit 3000 990\tSACHS\n40363\t07/08/2019\t4006633294256\t1\t42.95\tClutch cable 1m\tATE\n40364\t07/10/2019\t0191215072422\t1\t3,299.00\tEngine block Honda B-series\tDART\n40365\t07/11/2019\t4010858791506\t1\t86.95\tTiming belt set\tCONTINENTAL\n40365\t07/11/2019\t4029416288686\t10\t8.99\tOil filter 105mm/66mm\tHERTH+BUSS JAKOPARTS";
+			data1 = "OrderID\tOrderDate\tArtNo\tAmount\tPrice\tPartName\tBrandName\n40361\t07/03/2019\t4006633374668\t2\t59.95\tBrake Pads Ceramic\tATE\n40361\t07/03/2019\t4006633146647\t2\t42.95\tBrake discs Powerdisc\tATE\n40361\t07/03/2019\t4016987119501\t1\t69.75\tBattery VW IV 12V 60Ah\tVarta\n40362\t07/05/2019\t4082300264630\t4\t4.99\tBattery terminal\tHELLA\n40362\t07/05/2019\t4026736081348\t1\t39.95\tOvervoltage Protector\tHERTH+BUSS ELPARTS\n40363\t07/08/2019\t4013872786831\t1\t230.00\tClutch kit 3000 990\tSACHS\n40363\t07/08/2019\t4006633294256\t1\t42.95\tClutch cable 1m\tATE\n40364\t07/10/2019\t0191215072422\t1\t3,299.00\tEngine block Honda B-series\tDART\n40365\t07/11/2019\t4010858791506\t1\t86.95\tTiming belt set\tCONTINENTAL\n40365\t07/11/2019\t4029416288686\t10\t8.99\tOil filter 105mm/66mm\tHERTH+BUSS JAKOPARTS\n";
 			dd1 = "[OrderID] numeric(8)\n[OrderDate] datetime(mm/dd/yyyy)\n[ArtNo] varchar(15)\n[Amount] numeric(3)\n[Price] numeric(8,2)\n[PartName] varchar(30)\n[BrandName] varchar(30)\n";
 			frm1 = "tsv";
 			head = true;
@@ -159,8 +159,8 @@ function checkValidDateTime(year, month, day, hour, min, sec, msec)
 			|| (day > max)
 			|| (month < 1)
 			|| (month > 12)
-			|| (year < 0)	// arbitrary year limits
-			|| (year > 9999)
+			|| (year < 1900)	// arbitrary year limits
+			|| (year > 2100)
 			|| (hour < 0)
 			|| (hour > 23)
 			|| (min < 0)
@@ -242,19 +242,19 @@ function ConvertDateFormat(input, arypos, maskout)
 	// date
 	res = res.replace("yyyy", year);
 	res = res.replace(  "yy", year.toString().substr(-2));
-	res = res.replace(  "mm", ("0" + month).slice(-2));
+	res = res.replace(  "mm", ("00" + month).slice(-2));
 	res = res.replace(   "m", month);
-	res = res.replace(  "dd", ("0" + day).slice(-2));
+	res = res.replace(  "dd", ("00" + day).slice(-2));
 	res = res.replace(   "d", day);
 
 	// time
-	res = res.replace( "hh", ("0" + hour).slice(-2));
+	res = res.replace( "hh", ("00" + hour).slice(-2));
 	res = res.replace(  "h", hour);
-	res = res.replace( "nn", ("0" + min).slice(-2));
+	res = res.replace( "nn", ("00" + min).slice(-2));
 	res = res.replace(  "n", min);
-	res = res.replace( "ss", ("0" + sec).slice(-2));
+	res = res.replace( "ss", ("00" + sec).slice(-2));
 	res = res.replace(  "s", sec);
-	res = res.replace("fff", ("00" + msec).slice(-3));
+	res = res.replace("fff", ("000" + msec).slice(-3));
 
 	// return new string and IsValidDate
 	return [res, valid];
@@ -562,7 +562,7 @@ function detectDataTypes()
 		};
 	};
 
-	// print on screen
+	// Data definitions input and output, display in textboxes on the right
 	var strin = "";
 	var strout = "";
 	for (var c = 0; c < arycol.length; c++) {
@@ -754,11 +754,11 @@ function getCreateTableSQL()
 	var brackets = false;
 	
 	// determine global format and settings
-	for (var i = 0; i < DDinput.length; i++) {
-		var nam = DDinput[i][0];
-		var typ = DDinput[i][1];
-		var wid = DDinput[i][2];
-		var msk = DDinput[i][3];
+	for (var i = 0; i < DDoutput.length; i++) {
+		var nam = DDoutput[i][0];
+		var typ = DDoutput[i][1];
+		var wid = DDoutput[i][2];
+		var msk = DDoutput[i][3];
 		
 		// if any name contains spaces, put all column names in quotes
 		brackets = (brackets || nam.indexOf(" ") > 0);
@@ -768,11 +768,11 @@ function getCreateTableSQL()
 	ret += "CREATE TABLE " + getTableNameSQL() + " (\n";
 
 	// create all columns
-	for (var i = 0; i < DDinput.length; i++) {
-		var nam = DDinput[i][0];
-		var typ = DDinput[i][1];
-		var wid = DDinput[i][2];
-		var msk = DDinput[i][3];
+	for (var i = 0; i < DDoutput.length; i++) {
+		var nam = DDoutput[i][0];
+		var typ = DDoutput[i][1];
+		var wid = DDoutput[i][2];
+		var msk = DDoutput[i][3];
 		var fld = "";
 
 		// if any name contains spaces, put all column names in brackets
@@ -795,6 +795,14 @@ function getCreateTableSQL()
 
 			if (msk[9].indexOf("hh") < 0) typ = "date";
 			wid = "";
+
+			// SQL script output, force ISO datetime formats
+			var dtiso = "";
+			if (msk[9].indexOf("yyyy") >= 0) dtiso = "yyyy-mm-dd ";
+			if (msk[9].indexOf("h")    >= 0) dtiso += "hh:nn";
+			if (msk[9].indexOf("s")    >= 0) dtiso += ":ss";
+			if (msk[9].indexOf("f")    >= 0) dtiso += ".fff";
+			DDoutput[i][3][9] = dtiso.trim();
 		};
 
 		// width is optional, depends on data type
@@ -806,7 +814,7 @@ function getCreateTableSQL()
 
 	// remove last comma and return
 	ret = ret.slice(0, -2);
-	ret += "\n)\ngo\n";
+	ret += "\n)\n";
 
 	return ret;
 }
@@ -923,6 +931,9 @@ function doConvert()
 	var decin = document.getElementById("inputDecimal").value;
 	var thosep = (decin == "." ? "," : ".");
 	var trimout = document.getElementById("checkTrimOutput").checked;
+	var maxrows = parseInt(document.getElementById("intMaxRows").value);
+	//if (maxrows <= 0) maxrows = 999999999;
+	if (maxrows <= 0) maxrows = Number.MAX_SAFE_INTEGER;
 
 	// force dot as decimal separator
 	var decout = document.getElementById("outputDecimal").value;
@@ -931,6 +942,9 @@ function doConvert()
 
 	// prepare input and output
 	var lines = document.getElementById("textInput").value.split("\n");
+	// remove empty lines at the end
+	while ( (lines[lines.length-1].trim().length == 0) && (lines.length > 0) ) { lines.pop(); };
+
 	var strout = "";
 
 	// header out
@@ -952,11 +966,15 @@ function doConvert()
 		strout = strout + "\n";
 	};
 
-	// create table statement
-	if (formatout == "sqlins") strout = getCreateTableSQL();
-
-	// SQL statements always require dot for numeric values, not comma
-	if ((formatout == "sqlins") || (formatout == "sqlsub")) decout = ".";
+	// SQL statements
+	if ((formatout == "sqlins") || (formatout == "sqlsub")) {
+		// create table statement first
+		strout = getCreateTableSQL();
+		// for sqlins, remove last '\n'
+		if (formatout == "sqlins") strout = strout.slice(0, -1);
+		// SQL statements always require dot for numeric values, not comma
+		decout = ".";
+	};
 
 	// exception for schema.ini
 	if (formatout == "schema") {
@@ -970,9 +988,9 @@ function doConvert()
 	// process input data lines
 	for (var i = first; i < lines.length; i++) {
 		// get next line
-		var line = lines[i].trim();
+		var line = lines[i];
 		// ignore empty lines
-		if (line != "") {
+		if (line.trim() != "") {
 			linecount++;
 			// ---- interpret input values ----
 			var incols = [];
@@ -996,7 +1014,7 @@ function doConvert()
 					var idx2 = 0;
 					for (var c = 0; c < DDinput.length; c++) {
 						idx2 = idx1 + DDinput[c][2];
-						var val = line.substring(idx1, idx2).trim(); // trim lines so no extra columns at end
+						var val = line.substring(idx1, idx2).trim(); // fixed length columns, so always trim to remove extra spaces
 						incols[c] = val;
 						idx1 = idx2;
 					};
@@ -1077,8 +1095,10 @@ function doConvert()
 				case "ssv":
 					// output columns
 					for (var c = 0; c < cols.length; c++) {
-						strout = strout + cols[c] + sepout;
+						// add separator, except not at the end of the line
+						strout = strout + cols[c] + (c < cols.length-1 ? sepout : "");
 					};
+					// add line feed
 					strout = strout + "\n";
 					break;
 				case "fix":
@@ -1094,18 +1114,33 @@ function doConvert()
 					strout = strout + "\n";
 					break;
 				case "sqlins":
-					// template for insert statement
-					var sqlins = "insert into " + sqlTable + "(";
-					for (var c = 0; c < cols.length; c++) {
-						// column name
-						var colname = (c < DDoutput.length ? DDoutput[c][0] : "Col"+(c+1));
-						sqlins = sqlins + "[" + colname + "], ";
+
+					// each 500 rows
+					var sqlnew = ((i-first) % maxrows == 0);
+
+					// template for sub-select statement
+					if (sqlnew) {
+						// display which rows in comment
+						var row2 = (i + maxrows - first > lines.length - first ? lines.length - first : i + maxrows - first);
+						// add insert part
+						strout += "\ngo\n";
+						strout += "-- -------------------------------------\n";
+						strout += "-- insert records " + (i-first+1) + " - " + row2 + "\n";
+						strout += "-- -------------------------------------\n";
+						strout += "insert into " + sqlTable + "(\n";
+						for (var c = 0; c < cols.length; c++) {
+							// column names
+							var colname = DDoutput[c][0];
+							strout = strout + "\t[" + colname + "],\n";
+						};
+						// remove last comma
+						strout = strout.slice(0, -2) + ") values\n(";
+					} else {
+						// add comma after each row
+						strout = strout + ",\n(";
 					};
-					// remove last comma
-					sqlins = sqlins.slice(0, -2) + ") values (";
 
 					// get values for data insert
-					var values = "";
 					for (var c = 0; c < cols.length; c++) {
 						var val = cols[c]
 						if (val == "") {
@@ -1117,16 +1152,37 @@ function doConvert()
 								val = "'" + val + "'";
 							};
 						};
-						values = values + val + ", ";
+						strout = strout + val + ", ";
 					};
-					// remove last comma
-					values = values.slice(0, -2);
-					// build actual data insert statements
-					strout = strout + sqlins + values + ")\ngo\n";
+					// remove last comma and close
+					strout = strout.slice(0, -2) + ")";
 					break;
 				case "sqlsub":
+				
+					// each 500 rows
+					var sqlnew = ((i-first) % maxrows == 0);
+
 					// template for sub-select statement
-					var sqlsub = (i == first ? "select " : "union select ");
+					if (sqlnew) {
+						// display which rows in comment
+						var row2 = (i + maxrows - first > lines.length - first ? lines.length - first : i + maxrows - first);
+						// add insert part
+						strout += "go\n";
+						strout += "-- -------------------------------------\n";
+						strout += "-- insert records " + (i-first+1) + " - " + row2 + "\n";
+						strout += "-- -------------------------------------\n";
+						strout += "insert into " + sqlTable + "(\n";
+						for (var c = 0; c < cols.length; c++) {
+							// column names
+							var colname = DDoutput[c][0];
+							strout = strout + "\t[" + colname + "],\n";
+						};
+						// remove last comma
+						strout = strout.slice(0, -2) + "\n)\n";
+					};
+	
+					// template for sub-select statement
+					var sqlsub = (sqlnew ? "select " : "union select ");
 
 					// get values for data insert
 					var values = "";
@@ -1142,7 +1198,7 @@ function doConvert()
 							};
 						};
 						// first row
-						if (i == first) {
+						if (sqlnew) {
 							var colname = DDoutput[c][0];
 							val = val + " as [" + colname + "]";
 						};
@@ -1155,22 +1211,6 @@ function doConvert()
 					break;
 			};
 		};
-	};
-
-	// template for sub-select statement
-	if (formatout == "sqlsub") {
-		// create table statement
-		var sqlsub = getCreateTableSQL();
-		// add insert part
-		sqlsub += "insert into " + sqlTable + "(\n";
-		for (var c = 0; c < cols.length; c++) {
-			// column names
-			var colname = DDoutput[c][0];
-			sqlsub = sqlsub + "\t[" + colname + "],\n";
-		};
-		// remove last comma
-		sqlsub = sqlsub.slice(0, -2) + "\n)\n";
-		strout = sqlsub + strout + "\ngo\n";
 	};
 
 	// output
