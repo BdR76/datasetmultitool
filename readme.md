@@ -1,7 +1,7 @@
 Dataset Multitool
 =================
 
-Try it here: [Dataset Multitool](http://members.home.nl/bas.de.reuver/files/datasetmultitool.html)
+Try it here: [Dataset Multitool](http://bdrgames.nl/homepage/files/datasetmultitool.html)
 
 A tool to make it easier to work with and process tabular data files.
 Interpret, convert and reformat CSV datasets and various text formats.
