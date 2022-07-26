@@ -355,6 +355,7 @@ function detectDataTypes()
 		var num = 0; // 1=num, 0=char
 		var spaces = 0;
 		var newcol = 0;
+		var inQuotes = false;
 
 		for (var i = 0; i < max; i++) {
 			// get next line
@@ -369,25 +370,44 @@ function detectDataTypes()
 					// examine single characers
 					var ch = line[c];
 
-					// count space characters
-					if (ch == " ") {
-						spaces = spaces + 1;
-					} else {
-						// more than 2 spaces could indicate new column
-						if (spaces > 1)  newcol = 1;
-						spaces = 0; // reset
 
-						// switch between alpha and numeric characters could indicate new column
-						var checknum = ("0123456789".indexOf(ch));
-						// ignore characters that can be both numeric or alpha values example "A.B." or "Smith-Johnson"
-						var ignore = (".-+".indexOf(ch));
-						if (ignore < 0) {
-							if (checknum < 0) {
-								if (num == 1) newcol = 1;
-								num = 0;
-							} else {
-								if (num != 1) newcol = 1;
-								num = 1;
+                    // string value in quotes, treat as one continuous value, i.e. do not check content for column breaks
+                    if (ch == '"') {
+						// spaces followed by a new quoted string, probably a new column
+						if ( (!inQuotes) && (spaces > 1) ) newcol = 1;
+						spaces = 0; // reset
+						// toggle quoted string
+						inQuotes = !inQuotes;
+					}
+
+                    // string value in quotes, treat as one continuous value, i.e. do not check content for column breaks
+					if (!inQuotes) {
+						// count space characters
+						if (ch == " ") {
+							// a space after a numeric value
+							if (num == 1)
+							{
+								num = -1; // reset text/numeric indicator because probably a new column
+								spaces++; // count single space as "big space" i.e. 2 spaces or more
+							}
+							spaces = spaces + 1;
+						} else {
+							// more than 2 spaces could indicate new column
+							if (spaces > 1)  newcol = 1;
+							spaces = 0; // reset
+
+							// switch between alpha and numeric characters could indicate new column
+							var isdigit = ("0123456789".indexOf(ch));
+							// ignore characters that can be both numeric or alpha values example "A.B." or "Smith-Johnson"
+							var ignore = (",.-+:/\\".indexOf(ch));
+							if (ignore < 0) {
+								if (isdigit < 0) {
+									if (num == 1) newcol = 1;
+									num = 0;
+								} else {
+									if (num == 0) newcol = 1;
+									num = 1;
+								};
 							};
 						};
 					};
